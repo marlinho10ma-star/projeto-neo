@@ -106,10 +106,10 @@ export function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    href="/operator"
+                                    href="/preparer/adjustments"
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group",
-                                        isActive("/operator") && !isActive("/operator/handover") ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                        isActive("/preparer/adjustments") ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
                                 >
                                     <PlusSquare className="w-5 h-5 group-hover:text-primary transition-colors" />
@@ -118,10 +118,10 @@ export function Sidebar() {
                             </li>
                             <li>
                                 <Link
-                                    href="/operator"
+                                    href="/preparer"
                                     className={cn(
                                         "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors group",
-                                        isActive("/operator") && !isActive("/operator/handover") ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                        isActive("/preparer") && !isActive("/preparer/adjustments") ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
                                 >
                                     <Network className="w-5 h-5 group-hover:text-primary transition-colors" />

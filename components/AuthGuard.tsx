@@ -5,20 +5,23 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-    const { isAuthorized, role } = useApp();
+    const { isAuthorized, role, loading } = useApp();
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
-        // Basic route protection
+        if (loading) return;
+
         const isPublicRoute = pathname === "/";
 
         // Redirect if not authorized and trying to access restricted content
-        // Exception: Operator access is free
-        if (!isPublicRoute && role !== "OPERATOR" && !isAuthorized) {
+        // Operator doesn't need extra pin authorization besides the selection
+        if (!isPublicRoute && !isAuthorized) {
             router.push("/");
         }
-    }, [isAuthorized, role, pathname, router]);
+    }, [isAuthorized, role, pathname, router, loading]);
+
+    if (loading) return null;
 
     return <>{children}</>;
 }

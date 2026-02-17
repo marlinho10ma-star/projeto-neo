@@ -43,7 +43,16 @@ const INITIAL_SOLUTIONS: Record<string, string[]> = {
     "Processo": ["Revisar programa CNC", "Ajustar pressão da pinça", "Conferir centralização da peça"]
 };
 
-const INITIAL_ITEMS: Array<{ id: string; name: string; drawingUrl?: string; setupImageUrl?: string }> = [
+export interface Item {
+    id: string;
+    name: string;
+    drawingUrl?: string; // Legacy/Reference
+    setupImageUrl?: string; // Legacy/Reference
+    drawingData?: string; // Base64
+    photoData?: string; // Base64
+}
+
+const INITIAL_ITEMS: Item[] = [
     { id: "109.497-1", name: "Eixo de Transmissão" },
     { id: "116.037-1", name: "Pino Guia" },
     { id: "616.601-2", name: "Flange do Motor" },
@@ -98,12 +107,14 @@ interface AppContextType {
     adjustmentLogs: any[];
     solutions: Record<string, string[]>;
     updateSolutions: (category: string, newSolutions: string[]) => void;
-    items: any[];
-    addItem: (item: any) => void;
+    items: Item[];
+    addItem: (item: Item) => void;
+    removeItem: (id: string) => void;
     knowledgeBase: KnowledgeBaseEntry[];
     addKnowledgeEntry: (entry: KnowledgeBaseEntry) => void;
     // Auth & Users
     isAuthorized: boolean;
+    loading: boolean;
     preparers: Array<{ id: string; name: string; pin: string }>;
     login: (pin: string, requestedRole: UserRole) => boolean;
     logout: () => void;
@@ -123,6 +134,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState(INITIAL_ITEMS);
     const [knowledgeBase, setKnowledgeBase] = useState(INITIAL_KNOWLEDGE_BASE);
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [preparers, setPreparers] = useState([
         { id: "1", name: "Carlos Alberto", pin: "1234" },
         { id: "2", name: "Ricardo Silva", pin: "5678" }
@@ -154,9 +166,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         const savedKB = localStorage.getItem("neo_kb");
         if (savedKB) setKnowledgeBase(JSON.parse(savedKB));
+
+        const savedRole = localStorage.getItem("neo_role");
+        if (savedRole) setRole(savedRole as UserRole);
+
+        const savedAuth = localStorage.getItem("neo_isAuthorized");
+        if (savedAuth) setIsAuthorized(JSON.parse(savedAuth));
+
+        setLoading(false);
     }, []);
 
     useEffect(() => {
+        if (loading) return; // Don't overwrite during initial load
         localStorage.setItem("neo_machines", JSON.stringify(machines));
         localStorage.setItem("neo_preparers", JSON.stringify(preparers));
         localStorage.setItem("neo_history", JSON.stringify(history));
@@ -165,7 +186,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("neo_solutions", JSON.stringify(solutions));
         localStorage.setItem("neo_items", JSON.stringify(items));
         localStorage.setItem("neo_kb", JSON.stringify(knowledgeBase));
-    }, [machines, preparers, history, maintenanceHistory, adjustmentLogs, solutions, items, knowledgeBase]);
+        localStorage.setItem("neo_role", role);
+        localStorage.setItem("neo_isAuthorized", JSON.stringify(isAuthorized));
+    }, [machines, preparers, history, maintenanceHistory, adjustmentLogs, solutions, items, knowledgeBase, role, isAuthorized, loading]);
 
     const updateMachineStatus = (id: string, status: Machine["status"]) => {
         setMachines(prev => prev.map(m => m.id === id ? { ...m, status } : m));
@@ -205,6 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setAdjustmentLogs(prev => [{ machineId, op: machine?.op || "-", startTime: new Date() }, ...prev]);
         } else {
             updateMachineStatus(machineId, "Running");
+            updateMachineData(machineId, { pieces: 0 }); // Clean pieces for new OP
             setAdjustmentLogs(prev => prev.map(log =>
                 log.machineId === machineId && !log.endTime
                     ? { ...log, endTime: new Date(), observation }
@@ -217,8 +241,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSolutions(prev => ({ ...prev, [category]: newSolutions }));
     };
 
-    const addItem = (item: any) => {
+    const addItem = (item: Item) => {
         setItems(prev => [...prev, item]);
+    };
+
+    const removeItem = (id: string) => {
+        setItems(prev => prev.filter(it => it.id !== id));
     };
 
     const addKnowledgeEntry = (entry: KnowledgeBaseEntry) => {
@@ -236,6 +264,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (isValid) {
             setIsAuthorized(true);
             setRole(requestedRole);
+            localStorage.setItem("neo_isAuthorized", "true");
+            localStorage.setItem("neo_role", requestedRole);
         }
         return isValid;
     };
@@ -243,6 +273,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         setIsAuthorized(false);
         setRole("OPERATOR");
+        localStorage.setItem("neo_isAuthorized", "false");
+        localStorage.setItem("neo_role", "OPERATOR");
     };
 
     const addPreparer = (name: string, pin: string) => {
@@ -258,8 +290,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             role, setRole, machines, updateMachineStatus, updateMachineData,
             maintenanceHistory, addMaintenanceRecord, history, addHistoryEntry,
             toggleAdjustment, adjustmentLogs, solutions, updateSolutions,
-            items, addItem, knowledgeBase, addKnowledgeEntry,
-            isAuthorized, preparers, login, logout, addPreparer, updatePreparerPin
+            items, addItem, removeItem, knowledgeBase, addKnowledgeEntry,
+            isAuthorized, loading, preparers, login, logout, addPreparer, updatePreparerPin
         }}>
             {children}
         </AppContext.Provider>

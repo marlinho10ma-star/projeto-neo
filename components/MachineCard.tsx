@@ -16,7 +16,7 @@ export function MachineCard({ id, item, op, cycleTime, status, lastReading, tota
             className={cn(
                 "relative overflow-hidden rounded-xl border bg-card p-5 transition-all active:scale-95 cursor-pointer select-none",
                 isMaintenance ? "border-yellow-500/50 bg-yellow-950/10" :
-                    status === "Adjustment" ? "border-amber-500/50 bg-amber-950/5 animate-pulse-subtle" :
+                    status === "Adjustment" ? "border-red-600 bg-red-950/20 shadow-[0_0_20px_rgba(220,38,38,0.2)] animate-pulse-subtle" :
                         "border-border hover:border-primary/50"
             )}>
             {/* Header */}

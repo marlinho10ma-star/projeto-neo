@@ -30,8 +30,12 @@ export default function ProfileSelector() {
     if (!selectedRole) return;
 
     if (login(pin, selectedRole)) {
-      if (selectedRole === "PREPARER") router.push("/preparer");
-      else if (selectedRole === "ADMIN") router.push("/dashboard");
+      // Force immediate persistence of auth state
+      localStorage.setItem("neo_isAuthorized", "true");
+      localStorage.setItem("neo_role", selectedRole);
+
+      const target = selectedRole === "PREPARER" ? "/preparer" : "/dashboard";
+      router.push(target);
       setShowPinModal(false);
     } else {
       setError("PIN incorreto. Tente novamente");

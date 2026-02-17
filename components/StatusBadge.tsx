@@ -28,7 +28,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
             {status === "Stopped" && "Parada"}
             {status === "Maintenance" && "Manutenção"}
             {status === "Offline" && "Offline"}
-            {status === "Adjustment" && "Em Ajuste"}
+            {status === "Adjustment" && "EM SETUP"}
         </div>
     );
 }

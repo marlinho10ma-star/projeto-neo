@@ -3,8 +3,9 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/contexts/AppContext";
-import { ArrowLeft, Play, Square, AlertTriangle, Settings, Activity, Clock, Save, Bot, Wrench, ClipboardList } from "lucide-react";
+import { ArrowLeft, Play, Square, AlertTriangle, Settings, Activity, Clock, Save, Bot, Wrench, ClipboardList, FileText } from "lucide-react";
 import { NeoChat } from "@/components/NeoChat";
+import { cn } from "@/lib/utils";
 
 export default function MachineDetailsPage({ params }: { params: any }) {
     const { machines, history, addHistoryEntry, role, updateMachineData, toggleAdjustment } = useApp();
@@ -142,7 +143,7 @@ export default function MachineDetailsPage({ params }: { params: any }) {
                             machine.status === 'Stopped' ? 'bg-red-500' :
                                 machine.status === 'Adjustment' ? 'bg-amber-500 animate-pulse' : 'bg-yellow-500'
                             }`} />
-                        {machine.status === 'Adjustment' ? 'EM AJUSTE' : machine.status} • OP: {machine.op}
+                        {machine.status === 'Adjustment' ? 'EM SETUP' : machine.status} • OP: {machine.op}
                     </div>
                 </div>
 
@@ -403,10 +404,47 @@ export default function MachineDetailsPage({ params }: { params: any }) {
 
                     {role === "OPERATOR" ? (
                         <div className="space-y-6">
+                            {/* Drawing Preview Button for Operators */}
+                            {(() => {
+                                const { items } = useApp();
+                                const currentItem = items.find(it => it.id === machine.item);
+                                if (currentItem?.drawingData) {
+                                    return (
+                                        <button
+                                            onClick={() => {
+                                                const win = window.open();
+                                                if (win) win.document.write(`<iframe src="${currentItem.drawingData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                                            }}
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-4 flex items-center justify-center gap-3 shadow-lg shadow-blue-900/20 font-black text-xs uppercase tracking-widest transition-all active:scale-95"
+                                        >
+                                            <FileText className="w-5 h-5 text-blue-200" />
+                                            Visualizar Desenho Técnico
+                                        </button>
+                                    );
+                                }
+                                return null;
+                            })()}
+
+                            {machine.status === "Adjustment" && (
+                                <div className="bg-red-500/10 border-2 border-red-500 rounded-xl p-6 flex flex-col items-center gap-4 text-center animate-pulse">
+                                    <Bot className="w-12 h-12 text-red-500" />
+                                    <div className="space-y-1">
+                                        <h2 className="text-xl font-black text-red-500 uppercase tracking-tighter">Máquina em Setup</h2>
+                                        <p className="text-sm font-bold">O Preparador Carlos Alberto está realizando a troca de lote.</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {!showNeo ? (
                                 <button
                                     onClick={() => setShowNeo(true)}
-                                    className="w-full h-32 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-3 text-muted-foreground hover:text-primary hover:border-primary hover:bg-primary/5 transition-all group"
+                                    disabled={machine.status === "Adjustment"}
+                                    className={cn(
+                                        "w-full h-32 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all group",
+                                        machine.status === "Adjustment"
+                                            ? "border-muted text-muted-foreground cursor-not-allowed opacity-50"
+                                            : "border-primary/30 text-muted-foreground hover:text-primary hover:border-primary hover:bg-primary/5"
+                                    )}
                                 >
                                     <div className="p-3 bg-primary/10 rounded-full group-hover:scale-110 transition-transform">
                                         <Bot className="w-8 h-8 text-primary" />
