@@ -1,0 +1,153 @@
+"use client";
+
+import { useApp } from "@/contexts/AppContext";
+import { BarChart3, TrendingUp, Settings, Activity, Wrench } from "lucide-react";
+
+export default function DashboardPage() {
+    const { machines } = useApp();
+
+    const running = machines.filter(m => m.status === 'Running').length;
+    const stopped = machines.filter(m => m.status === 'Stopped').length;
+    const maintenance = machines.filter(m => m.status === 'Maintenance').length;
+
+    // Calculate real-time adjustment duration
+    // In a real app, we would sum the duration of closed logs + (now - start) of open logs
+    // For this prototype, we'll mock a base value + active adjustments
+    const totalAdjustmentMinutes = 45 + (machines.filter(m => m.status === 'Adjustment').length * 12);
+
+    // Mock Data for Charts
+    const weeklyAdjustments = [12, 19, 3, 5, 2, 3, 10]; // Mon-Sun
+    const monthlySetups = [5, 8, 4, 6]; // Weeks 1-4
+
+    return (
+        <div className="space-y-8 pb-20">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Visão Geral</h1>
+                <p className="text-muted-foreground">Monitoramento de performance e indicadores de fábrica.</p>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-green-500/10 rounded-lg">
+                            <Activity className="w-6 h-6 text-green-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Máquinas Rodando</p>
+                            <h3 className="text-2xl font-bold">{running} / {machines.length}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-red-500/10 rounded-lg">
+                            <Wrench className="w-6 h-6 text-red-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Em Manutenção</p>
+                            <h3 className="text-2xl font-bold">{maintenance}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                            <TrendingUp className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Eficiência Global (Op./Meta)</p>
+                            <h3 className="text-2xl font-bold">
+                                {(() => {
+                                    const totalPieces = machines.reduce((acc, m) => acc + (m.pieces || 0), 0);
+                                    const totalTarget = machines.reduce((acc, m) => acc + (m.totalTarget || 0), 0);
+                                    if (totalTarget === 0) return "0%";
+                                    return `${Math.round((totalPieces / totalTarget) * 100)}%`;
+                                })()}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-yellow-500/10 rounded-lg">
+                            <Settings className="w-6 h-6 text-yellow-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">Setups (Mês)</p>
+                            <h3 className="text-2xl font-bold">23</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Adjustment Metric (Preparer View) */}
+            <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-amber-500 rounded-full text-white">
+                        <Wrench className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-amber-500">Tempo Total em Ajuste (Turno)</h3>
+                        <p className="text-muted-foreground text-sm">Somatório de todas as máquinas em modo de ajuste.</p>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <div className="text-4xl font-bold text-amber-500">
+                        {Math.floor(totalAdjustmentMinutes / 60)}h {totalAdjustmentMinutes % 60}m
+                    </div>
+                </div>
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid gap-6 md:grid-cols-2">
+
+                {/* Weekly Adjustments Chart */}
+                <div className="p-6 bg-card border border-border rounded-xl">
+                    <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                        <Settings className="w-5 h-5 text-primary" />
+                        Ajustes Realizados (Semana)
+                    </h3>
+                    <div className="h-64 flex items-end justify-between gap-2">
+                        {weeklyAdjustments.map((val, i) => (
+                            <div key={i} className="flex flex-col items-center gap-2 w-full group">
+                                <div
+                                    className="w-full bg-primary/20 hover:bg-primary transition-all rounded-t-sm relative group-hover:shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+                                    style={{ height: `${val * 5}%` }}
+                                >
+                                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {val}
+                                    </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground uppercase">{['S', 'T', 'Q', 'Q', 'S', 'S', 'D'][i]}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Monthly Setups Chart */}
+                <div className="p-6 bg-card border border-border rounded-xl">
+                    <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-blue-500" />
+                        Setups por Semana (Mês Atual)
+                    </h3>
+                    <div className="h-64 flex items-end justify-between gap-4">
+                        {monthlySetups.map((val, i) => (
+                            <div key={i} className="flex flex-col items-center gap-2 w-full group">
+                                <div
+                                    className="w-full bg-blue-500/20 hover:bg-blue-500 transition-all rounded-t-sm relative"
+                                    style={{ height: `${val * 10}%` }}
+                                >
+                                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {val}
+                                    </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">Semana {i + 1}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
