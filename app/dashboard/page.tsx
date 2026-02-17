@@ -27,56 +27,68 @@ export default function DashboardPage() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2 bg-green-500/10 rounded-lg">
-                            <Activity className="w-6 h-6 text-green-500" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Máquinas Rodando</p>
-                            <h3 className="text-2xl font-bold">{running} / {machines.length}</h3>
-                        </div>
+            {/* OEE METRICS BLOCK */}
+            <div className="p-6 bg-primary/10 border-2 border-primary/20 rounded-2xl shadow-lg relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                    <Activity className="w-16 h-16 text-primary" />
+                </div>
+                <div className="relative z-10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Global OEE</p>
+                    <h3 className="text-4xl font-black text-primary tracking-tighter">
+                        {(() => {
+                            const totalPieces = machines.reduce((acc, m) => acc + (m.pieces || 0), 0);
+                            const totalTarget = machines.reduce((acc, m) => acc + (m.totalTarget || 1), 0);
+                            const perf = totalTarget > 0 ? (totalPieces / totalTarget) : 0;
+                            const avail = 0.95; // Mocked for now (Disponibilidade)
+                            const qual = 0.98; // Mocked for now (Qualidade)
+                            const oee = (avail * perf * qual) * 100;
+                            return `${Math.min(100, Math.round(oee))}%`;
+                        })()}
+                    </h3>
+                    <div className="mt-2 flex gap-2">
+                        <span className="text-[9px] font-bold bg-green-500/20 text-green-600 px-2 py-0.5 rounded">A: 95%</span>
+                        <span className="text-[9px] font-bold bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded">P: {(() => {
+                            const totalPieces = machines.reduce((acc, m) => acc + (m.pieces || 0), 0);
+                            const totalTarget = machines.reduce((acc, m) => acc + (m.totalTarget || 1), 0);
+                            return Math.round((totalPieces / totalTarget) * 100);
+                        })()}%</span>
+                        <span className="text-[9px] font-bold bg-amber-500/20 text-amber-600 px-2 py-0.5 rounded">Q: 98%</span>
                     </div>
                 </div>
-                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2 bg-red-500/10 rounded-lg">
-                            <Wrench className="w-6 h-6 text-red-500" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Em Manutenção</p>
-                            <h3 className="text-2xl font-bold">{maintenance}</h3>
-                        </div>
+            </div>
+
+            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                        <Activity className="w-6 h-6 text-green-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-muted-foreground">Máquinas Ativas</p>
+                        <h3 className="text-2xl font-bold">{running} / {machines.length}</h3>
                     </div>
                 </div>
-                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2 bg-blue-500/10 rounded-lg">
-                            <TrendingUp className="w-6 h-6 text-blue-500" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Eficiência Global (Op./Meta)</p>
-                            <h3 className="text-2xl font-bold">
-                                {(() => {
-                                    const totalPieces = machines.reduce((acc, m) => acc + (m.pieces || 0), 0);
-                                    const totalTarget = machines.reduce((acc, m) => acc + (m.totalTarget || 0), 0);
-                                    if (totalTarget === 0) return "0%";
-                                    return `${Math.round((totalPieces / totalTarget) * 100)}%`;
-                                })()}
-                            </h3>
-                        </div>
+            </div>
+
+            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-red-500/10 rounded-lg">
+                        <Wrench className="w-6 h-6 text-red-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-muted-foreground">Em Manutenção</p>
+                        <h3 className="text-2xl font-bold">{maintenance}</h3>
                     </div>
                 </div>
-                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2 bg-yellow-500/10 rounded-lg">
-                            <Settings className="w-6 h-6 text-yellow-500" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-muted-foreground">Setups (Mês)</p>
-                            <h3 className="text-2xl font-bold">23</h3>
-                        </div>
+            </div>
+
+            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-yellow-500/10 rounded-lg">
+                        <Settings className="w-6 h-6 text-yellow-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-muted-foreground">Setups (Mês)</p>
+                        <h3 className="text-2xl font-bold">{weeklyAdjustments.reduce((a, b) => a + b, 0)}</h3>
                     </div>
                 </div>
             </div>

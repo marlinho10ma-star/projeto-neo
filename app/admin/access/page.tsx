@@ -2,10 +2,10 @@
 
 import { useApp } from "@/contexts/AppContext";
 import { useState } from "react";
-import { Plus, UserPlus, Key, Edit2, Trash2, ShieldCheck, X } from "lucide-react";
+import { Plus, UserPlus, Key, Edit2, Trash2, ShieldCheck, X, AlertTriangle } from "lucide-react";
 
 export default function UserManagementPage() {
-    const { preparers, addPreparer, updatePreparerPin } = useApp();
+    const { preparers, addPreparer, updatePreparerPin, resetSystem } = useApp();
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -164,6 +164,38 @@ export default function UserManagementPage() {
                     </div>
                 </div>
             )}
+            {/* Danger Zone: System Reset */}
+            <div className="mt-12 p-8 border-2 border-red-500/20 bg-red-500/5 rounded-2xl">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-red-500 rounded-xl text-white shadow-lg shadow-red-900/20">
+                        <AlertTriangle className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-black text-red-500 uppercase tracking-tighter">Zona de Perigo</h2>
+                        <p className="text-sm text-red-500/70 font-medium">Controle de inicialização do sistema.</p>
+                    </div>
+                </div>
+
+                <div className="bg-card border border-red-500/30 p-6 rounded-xl flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="space-y-1">
+                        <h3 className="font-bold text-lg">Reset Total do Sistema (Produção)</h3>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                            Esta ação irá zerar todas as peças produzidas, limpar o histórico de manutenção, apagar os logs de setup e resetar o status das máquinas para Offline. Use apenas para o lançamento oficial.
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            if (confirm("ATENÇÃO: Você está prestes a apagar TODOS os dados de produção e histórico. Esta ação é irreversível. Deseja continuar?")) {
+                                resetSystem();
+                            }
+                        }}
+                        className="w-full md:w-auto px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-red-900/40 active:scale-95 flex items-center justify-center gap-2"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                        Zerar Todo o Sistema
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

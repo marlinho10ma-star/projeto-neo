@@ -20,21 +20,21 @@ export interface Machine {
 
 // Initial Mock Data with Real Production Values
 const INITIAL_MACHINES: Machine[] = [
-    { id: "TNL 028", item: "109.497-1", op: "5010737547", cycleTime: "5:53,9", pieces: 1250, totalTarget: 2000, status: "Running", particularities: "Máquina com tendência a aquecer o fuso após 4h de operação contínua." },
-    { id: "TNL 007", item: "116.037-1", op: "5010737741", cycleTime: "1:27,5", pieces: 3400, totalTarget: 5000, status: "Running", particularities: "" },
-    { id: "TNL 008", item: "116.037-1", op: "5010737742", cycleTime: "-", pieces: 0, totalTarget: 1000, status: "Running", particularities: "Barra alimentadora trava ocasionalmente com material 116." },
-    { id: "TNL 003", item: "616.601-2", op: "5080009804", cycleTime: "1:35,6", pieces: 890, totalTarget: 1500, status: "Running", particularities: "" },
-    { id: "TNL 031", item: "320086", op: "5010744849", cycleTime: "1:03,3", pieces: 4500, totalTarget: 5000, status: "Running", particularities: "" },
-    { id: "TNL 032", item: "550.112-4", op: "5010740001", cycleTime: "-", pieces: 0, totalTarget: 2000, status: "Maintenance", lastReading: "Manutenção Preventiva", particularities: "Aguardando peças de reposição da Alemanha." },
-    { id: "TNL 004", item: "331006", op: "5010737547", cycleTime: "1:15,1", pieces: 2100, totalTarget: 3000, status: "Running", particularities: "" },
-    { id: "TNL 143", item: "116.037-1", op: "-", cycleTime: "1:36,2", pieces: 150, totalTarget: 500, status: "Running", particularities: "" },
-    { id: "TNL 049", item: "319217", op: "5010738000", cycleTime: "1:27,1", pieces: 3200, totalTarget: 4000, status: "Running", particularities: "" },
-    { id: "TNL 050", item: "106.226-2", op: "-", cycleTime: "2:23,9", pieces: 780, totalTarget: 1000, status: "Running", particularities: "" },
-    { id: "TNL 051", item: "319523", op: "-", cycleTime: "1:34,6", pieces: 1200, totalTarget: 1500, status: "Running", particularities: "" },
-    { id: "TNL 017", item: "106.231-1", op: "5010738888", cycleTime: "2:42,8", pieces: 560, totalTarget: 600, status: "Running", particularities: "" },
-    { id: "TNL 013", item: "616.601-2", op: "-", cycleTime: "1:19,2", pieces: 4100, totalTarget: 4500, status: "Running", particularities: "" },
-    { id: "TNL 016", item: "115.252-2", op: "5010737700", cycleTime: "1:55,2", pieces: 900, totalTarget: 1000, status: "Running", particularities: "" },
-    { id: "TNL 018", item: "319254", op: "-", cycleTime: "4:23,10", pieces: 320, totalTarget: 500, status: "Running", particularities: "" },
+    { id: "TNL 028", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 007", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 008", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 003", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 031", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 032", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 004", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 143", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 049", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 050", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 051", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 017", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 013", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 016", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
+    { id: "TNL 018", item: "-", op: "-", cycleTime: "-", pieces: 0, totalTarget: 0, status: "Offline", particularities: "" },
 ];
 
 const INITIAL_SOLUTIONS: Record<string, string[]> = {
@@ -120,6 +120,7 @@ interface AppContextType {
     logout: () => void;
     addPreparer: (name: string, pin: string) => void;
     updatePreparerPin: (id: string, newPin: string) => void;
+    resetSystem: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -285,13 +286,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setPreparers(prev => prev.map(p => p.id === id ? { ...p, pin: newPin } : p));
     };
 
+    const resetSystem = () => {
+        setMachines(INITIAL_MACHINES);
+        setHistory([]);
+        setMaintenanceHistory([]);
+        setAdjustmentLogs([]);
+        // Force immediate persistence of the reset state
+        localStorage.removeItem("neo_machines");
+        localStorage.removeItem("neo_history");
+        localStorage.removeItem("neo_maint_history");
+        localStorage.removeItem("neo_adj_logs");
+        window.location.reload(); // Refresh to clean everything
+    };
+
     return (
         <AppContext.Provider value={{
             role, setRole, machines, updateMachineStatus, updateMachineData,
             maintenanceHistory, addMaintenanceRecord, history, addHistoryEntry,
             toggleAdjustment, adjustmentLogs, solutions, updateSolutions,
             items, addItem, removeItem, knowledgeBase, addKnowledgeEntry,
-            isAuthorized, loading, preparers, login, logout, addPreparer, updatePreparerPin
+            isAuthorized, loading, preparers, login, logout, addPreparer, updatePreparerPin,
+            resetSystem
         }}>
             {children}
         </AppContext.Provider>
