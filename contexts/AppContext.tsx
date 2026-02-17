@@ -129,6 +129,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ]);
     const MASTER_PIN = "4850";
 
+    // --- PERSISTENCE LOGIC ---
+    useEffect(() => {
+        const savedMachines = localStorage.getItem("neo_machines");
+        if (savedMachines) setMachines(JSON.parse(savedMachines));
+
+        const savedPreparers = localStorage.getItem("neo_preparers");
+        if (savedPreparers) setPreparers(JSON.parse(savedPreparers));
+
+        const savedHistory = localStorage.getItem("neo_history");
+        if (savedHistory) setHistory(JSON.parse(savedHistory));
+
+        const savedMaintHistory = localStorage.getItem("neo_maint_history");
+        if (savedMaintHistory) setMaintenanceHistory(JSON.parse(savedMaintHistory));
+
+        const savedAdjLogs = localStorage.getItem("neo_adj_logs");
+        if (savedAdjLogs) setAdjustmentLogs(JSON.parse(savedAdjLogs));
+
+        const savedSolutions = localStorage.getItem("neo_solutions");
+        if (savedSolutions) setSolutions(JSON.parse(savedSolutions));
+
+        const savedItems = localStorage.getItem("neo_items");
+        if (savedItems) setItems(JSON.parse(savedItems));
+
+        const savedKB = localStorage.getItem("neo_kb");
+        if (savedKB) setKnowledgeBase(JSON.parse(savedKB));
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("neo_machines", JSON.stringify(machines));
+        localStorage.setItem("neo_preparers", JSON.stringify(preparers));
+        localStorage.setItem("neo_history", JSON.stringify(history));
+        localStorage.setItem("neo_maint_history", JSON.stringify(maintenanceHistory));
+        localStorage.setItem("neo_adj_logs", JSON.stringify(adjustmentLogs));
+        localStorage.setItem("neo_solutions", JSON.stringify(solutions));
+        localStorage.setItem("neo_items", JSON.stringify(items));
+        localStorage.setItem("neo_kb", JSON.stringify(knowledgeBase));
+    }, [machines, preparers, history, maintenanceHistory, adjustmentLogs, solutions, items, knowledgeBase]);
+
     const updateMachineStatus = (id: string, status: Machine["status"]) => {
         setMachines(prev => prev.map(m => m.id === id ? { ...m, status } : m));
     };
