@@ -73,67 +73,68 @@ export default function LibraryPage() {
             <div className="grid gap-6 md:grid-cols-12">
                 {/* List Area */}
                 <div className="md:col-span-8 space-y-4">
-                    <div className="rounded-xl border bg-card p-6 min-h-[400px]">
+                    <div className="rounded-xl border bg-card p-4 md:p-6 min-h-[400px]">
                         <h2 className="font-semibold text-lg mb-6 flex items-center gap-2 border-b pb-4">
                             <Package className="w-5 h-5 text-primary" />
                             Itens Registrados
                         </h2>
 
-                        <div className="grid gap-3">
+                        <div className="flex flex-col gap-3">
                             {items.length === 0 ? (
                                 <p className="text-sm text-muted-foreground italic text-center py-10">Nenhum item cadastrado.</p>
                             ) : items.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 bg-background border border-border rounded-xl shadow-sm hover:border-primary/50 transition-all group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden border border-border">
+                                <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-background border border-border rounded-xl shadow-sm hover:border-primary/50 transition-all group gap-4">
+                                    <div className="flex items-center gap-4 w-full">
+                                        <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center overflow-hidden border border-border shrink-0">
                                             {item.photoData ? (
                                                 <img src={item.photoData} alt={item.id} className="w-full h-full object-cover" />
                                             ) : (
-                                                <Package className="w-6 h-6 text-muted-foreground/30" />
+                                                <Package className="w-8 h-8 text-muted-foreground/30" />
                                             )}
                                         </div>
-                                        <div>
-                                            <h3 className="font-black text-foreground uppercase tracking-tighter">{item.id}</h3>
-                                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{item.name}</p>
+                                        <div className="min-w-0">
+                                            <h3 className="font-black text-lg text-foreground uppercase tracking-tighter truncate">{item.id}</h3>
+                                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide truncate">{item.name}</p>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2">
+
+                                    <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                                         <button
                                             onClick={() => viewFile(item.drawingData)}
                                             disabled={!item.drawingData}
                                             className={cn(
-                                                "p-2.5 rounded-xl border transition-all flex items-center gap-2",
+                                                "flex-1 sm:flex-none p-3 rounded-xl border transition-all flex items-center justify-center gap-2",
                                                 item.drawingData
                                                     ? "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500 hover:text-white"
                                                     : "bg-muted text-muted-foreground/30 border-transparent cursor-not-allowed"
                                             )}
                                             title={item.drawingData ? "Visualizar Desenho" : "Sem Desenho"}
                                         >
-                                            <FileText className="w-4 h-4" />
-                                            {item.drawingData && <span className="text-[10px] font-black uppercase">PDF</span>}
+                                            <FileText className="w-5 h-5" />
+                                            <span className="text-[10px] font-black uppercase md:hidden lg:inline">DESENHO</span>
                                         </button>
 
                                         <button
                                             onClick={() => viewFile(item.photoData)}
                                             disabled={!item.photoData}
                                             className={cn(
-                                                "p-2.5 rounded-xl border transition-all flex items-center gap-2",
+                                                "flex-1 sm:flex-none p-3 rounded-xl border transition-all flex items-center justify-center gap-2",
                                                 item.photoData
                                                     ? "bg-purple-500/10 text-purple-500 border-purple-500/20 hover:bg-purple-500 hover:text-white"
                                                     : "bg-muted text-muted-foreground/30 border-transparent cursor-not-allowed"
                                             )}
                                             title={item.photoData ? "Visualizar Foto" : "Sem Foto"}
                                         >
-                                            <FileImage className="w-4 h-4" />
-                                            {item.photoData && <span className="text-[10px] font-black uppercase">FOTO</span>}
+                                            <FileImage className="w-5 h-5" />
+                                            <span className="text-[10px] font-black uppercase md:hidden lg:inline">FOTO SETUP</span>
                                         </button>
 
                                         <button
                                             onClick={() => setItemToDelete(item)}
-                                            className="p-2.5 rounded-xl border border-transparent text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                            className="p-3 rounded-xl border border-transparent text-muted-foreground/40 hover:text-red-500 hover:bg-red-500/10 transition-all shrink-0"
                                             title="Excluir Item"
                                         >
-                                            <Trash2 className="w-4 h-4" />
+                                            <Trash2 className="w-5 h-5" />
                                         </button>
                                     </div>
                                 </div>

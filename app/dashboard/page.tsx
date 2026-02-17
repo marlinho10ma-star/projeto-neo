@@ -57,55 +57,57 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-green-500/10 rounded-lg">
-                        <Activity className="w-6 h-6 text-green-500" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-muted-foreground">Máquinas Ativas</p>
-                        <h3 className="text-2xl font-bold">{running} / {machines.length}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-red-500/10 rounded-lg">
-                        <Wrench className="w-6 h-6 text-red-500" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-muted-foreground">Em Manutenção</p>
-                        <h3 className="text-2xl font-bold">{maintenance}</h3>
+            <div className="grid gap-4 md:grid-cols-3">
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-green-500/10 rounded-lg shrink-0">
+                            <Activity className="w-6 h-6 text-green-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">MÁQUINAS ATIVAS</p>
+                            <h3 className="text-2xl font-black">{running} / {machines.length}</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-yellow-500/10 rounded-lg">
-                        <Settings className="w-6 h-6 text-yellow-500" />
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-red-500/10 rounded-lg shrink-0">
+                            <Wrench className="w-6 h-6 text-red-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">MANUTENÇÃO</p>
+                            <h3 className="text-2xl font-bold">{maintenance}</h3>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-sm font-medium text-muted-foreground">Setups (Mês)</p>
-                        <h3 className="text-2xl font-bold">{weeklyAdjustments.reduce((a, b) => a + b, 0)}</h3>
+                </div>
+
+                <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-yellow-500/10 rounded-lg shrink-0">
+                            <Settings className="w-6 h-6 text-yellow-500" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">SETUPS (MÊS)</p>
+                            <h3 className="text-2xl font-bold">{weeklyAdjustments.reduce((a, b) => a + b, 0)}</h3>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Adjustment Metric (Preparer View) */}
-            <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-xl flex items-center justify-between">
+            <div className="bg-amber-500/10 border border-amber-500/20 p-5 md:p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-amber-500 rounded-full text-white">
+                    <div className="p-3 bg-amber-500 rounded-full text-white shrink-0">
                         <Wrench className="w-6 h-6" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg text-amber-500">Tempo Total em Ajuste (Turno)</h3>
-                        <p className="text-muted-foreground text-sm">Somatório de todas as máquinas em modo de ajuste.</p>
+                        <h3 className="font-black text-lg text-amber-500 leading-tight">TEMPO TOTAL EM AJUSTE (TURNO)</h3>
+                        <p className="text-muted-foreground text-xs font-medium mt-1">Soma de todas as máquinas em modo setup.</p>
                     </div>
                 </div>
-                <div className="text-right">
-                    <div className="text-4xl font-bold text-amber-500">
+                <div className="w-full sm:w-auto text-left sm:text-right border-t sm:border-t-0 border-amber-500/10 pt-4 sm:pt-0">
+                    <div className="text-4xl font-black text-amber-500 tracking-tighter">
                         {Math.floor(totalAdjustmentMinutes / 60)}h {totalAdjustmentMinutes % 60}m
                     </div>
                 </div>

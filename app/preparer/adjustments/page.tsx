@@ -68,7 +68,8 @@ export default function AdjustmentsPage() {
                 </p>
             </div>
 
-            <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            {/* DESKTOP TABLE VIEW */}
+            <div className="hidden md:block bg-card border border-border rounded-xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse table-fixed min-w-[1200px]">
                         <thead className="bg-muted/50 text-muted-foreground text-[10px] uppercase tracking-widest">
@@ -194,6 +195,115 @@ export default function AdjustmentsPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* MOBILE CARD VIEW */}
+            <div className="md:hidden space-y-4 pb-24">
+                {localMachines.map((m) => (
+                    <div key={m.id} className="bg-card border-2 border-border/50 rounded-2xl p-5 space-y-4 shadow-lg overflow-hidden relative">
+                        {/* Machine Indicator */}
+                        <div className="flex items-center justify-between border-b border-border pb-3 mb-2">
+                            <div className="flex items-center gap-2">
+                                <span className="bg-muted px-3 py-1 rounded-lg font-mono font-black text-lg text-primary">{m.id}</span>
+                                {m.status === "Adjustment" && (
+                                    <span className="flex h-3 w-3 rounded-full bg-red-600 animate-pulse" title="Em Setup" />
+                                )}
+                            </div>
+                            <div className="text-right">
+                                <span className="text-[10px] text-muted-foreground font-black uppercase block">Término Est.</span>
+                                <span className="text-sm font-black text-primary font-mono">{calculateEstimatedEnd(m)}</span>
+                            </div>
+                        </div>
+
+                        {/* Editable Fields Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Ordem de Prod.</label>
+                                <input
+                                    type="text"
+                                    value={m.op}
+                                    onChange={(e) => handleInputChange(m.id, "op", e.target.value)}
+                                    className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-primary/50 outline-none"
+                                    placeholder="Ex: 5010"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Ciclo (M:S)</label>
+                                <input
+                                    type="text"
+                                    value={m.cycleTime}
+                                    onChange={(e) => handleInputChange(m.id, "cycleTime", e.target.value)}
+                                    className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm font-mono text-center focus:ring-2 focus:ring-primary/50 outline-none"
+                                    placeholder="0:00"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Item / Produto</label>
+                            <input
+                                type="text"
+                                value={m.item}
+                                onChange={(e) => handleInputChange(m.id, "item", e.target.value)}
+                                list="items-list"
+                                className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-primary/50 outline-none"
+                                placeholder="Nome do produto"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Produzido</label>
+                                <input
+                                    type="number"
+                                    value={m.pieces}
+                                    onChange={(e) => handleInputChange(m.id, "pieces", parseInt(e.target.value) || 0)}
+                                    className="w-full bg-muted/40 border border-border rounded-xl px-4 py-4 text-center text-xl font-black text-foreground focus:ring-2 focus:ring-primary/50 outline-none"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Meta Total</label>
+                                <input
+                                    type="number"
+                                    value={m.totalTarget || 0}
+                                    onChange={(e) => handleInputChange(m.id, "totalTarget", parseInt(e.target.value) || 0)}
+                                    className="w-full bg-muted/40 border border-border rounded-xl px-4 py-4 text-center text-xl font-black text-foreground focus:ring-2 focus:ring-primary/50 outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Action Buttons Stacking on Mobile */}
+                        <div className="flex flex-col gap-3 pt-2">
+                            <button
+                                onClick={() => {
+                                    const isStarting = m.status !== "Adjustment";
+                                    toggleAdjustment(m.id, isStarting);
+                                }}
+                                className={cn(
+                                    "w-full py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                                    m.status === "Adjustment"
+                                        ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
+                                        : "bg-muted/50 border border-border text-muted-foreground"
+                                )}
+                            >
+                                {m.status === "Adjustment" ? "Finalizar Setup" : "Iniciar Setup"}
+                            </button>
+
+                            <button
+                                onClick={() => handleSave(m.id)}
+                                className={cn(
+                                    "w-full py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2",
+                                    savedId === m.id
+                                        ? "bg-green-600 text-white"
+                                        : "bg-primary text-white shadow-primary/30"
+                                )}
+                            >
+                                {savedId === m.id ? <CheckCircle2 className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+                                {savedId === m.id ? "SALVO COM SUCESSO" : "SALVAR ALTERAÇÕES"}
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {/* Visual Guide Footnote */}
